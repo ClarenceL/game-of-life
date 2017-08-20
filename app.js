@@ -87,11 +87,3 @@ function run( board, delayMs ){
 
 }
 
-
-
-/*
-const seed = JSON.parse(fs.readFileSync(`./seed/blinker.json`, 'utf8'));
-const board = new Board(seed);
-
-board.render();
-*/

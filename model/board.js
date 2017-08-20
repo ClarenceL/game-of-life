@@ -20,11 +20,9 @@ class Board {
 
     this.generation = 1;
 
-
-    this.boardWidth = parseInt(seed.width);
-    this.boardHeight = parseInt(seed.height);
-    this.board = Board.initBoard(seed.cells, this.boardWidth, this.boardHeight, seed.center_seed);
-
+    this.boardWidth = seed.width;
+    this.boardHeight = seed.height;
+    this.board = Board.initBoard(seed);
 
   }
 
@@ -94,6 +92,7 @@ class Board {
       }
     }
 
+    // step - replace this.board with the next generation
     this.generation += 1;
     this.board = newBoard;
 
@@ -101,8 +100,9 @@ class Board {
 
 
   /**
-   * we render to process.stdout
+   * For now we render to process.stdout
    *
+   * TODO: allow a flexible view to linked
    */
   render(){
 
@@ -134,9 +134,9 @@ class Board {
    * Our seed only contains the relevant cells,
    * we need to pad the board to size by size first
    *
-   * A visual improvement, we try to center the seed in the board
+   * A visual improvement, we try to center the seed in the board by default
    */
-  static initBoard( seedCells, boardWidth, boardHeight, centerSeed = 1 ){
+  static initBoard({cells: seedCells, width: boardWidth, height: boardHeight, center_seed: centerSeed = 1}){
 
     // create a blank board first
     let board = Board.createBlankBoard(boardWidth, boardHeight);
