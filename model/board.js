@@ -9,19 +9,21 @@ const DEAD = 0;
 class Board {
 
   /**
-   * We initialize Board with a seed
+   * We initialize Board with a seed struct
    *
-   * We assume seed.cells is a proper orthogonal matrix
+   * We assume seed.cells is a rectangular matrix
    *
-   * @param seed - struct with keys - size: int, cells: 2D array seed
+   * @param seed -  struct with keys - width: int, height: int, cells: 2D array seed,
+   *                (optional) center_seed: int - this centers the seed - defaults to 1
    */
   constructor( seed ){
 
     this.generation = 1;
 
 
-    this.boardSize = parseInt(seed.size);
-    this.board = Board.initBoard(seed.cells, this.boardSize);
+    this.boardWidth = parseInt(seed.width);
+    this.boardHeight = parseInt(seed.height);
+    this.board = Board.initBoard(seed.cells, this.boardWidth, this.boardHeight, seed.center_seed);
 
 
   }
@@ -42,7 +44,7 @@ class Board {
 
         if ((neighborX === x && neighborY === y) ||
             neighborX < 0 || neighborY < 0 ||
-            neighborX >= this.boardSize || neighborY >= this.boardSize){
+            neighborX >= this.boardWidth || neighborY >= this.boardHeight){
 
           continue
 
@@ -76,8 +78,8 @@ class Board {
 
     let newBoard = Board.copyBoard(this.board);
 
-    for (var x = 0; x < this.boardSize; x++){
-      for (var y = 0; y < this.boardSize; y++){
+    for (var x = 0; x < this.boardWidth; x++){
+      for (var y = 0; y < this.boardHeight; y++){
 
         let neighborsCnt = this.getNeighborsCount(x, y);
 
@@ -92,6 +94,7 @@ class Board {
       }
     }
 
+    this.generation += 1;
     this.board = newBoard;
 
   }
@@ -103,12 +106,13 @@ class Board {
    */
   render(){
 
-    // draw one line at a time
-    for (let x = 0; x < this.boardSize; x++){
+    // draw one horizontal line at a time
+    // our array is row major so we loop thru height first
+    for (let y = 0; y < this.boardHeight; y++){
 
       let line = '';
 
-      for (let y = 0; y < this.boardSize; y++){
+      for (let x = 0; x < this.boardWidth; x++){
 
         line += this.board[x][y] === ALIVE ? 'o' : '_';
       }
@@ -116,6 +120,7 @@ class Board {
       process.stdout.write(line + '\n');
     }
 
+    process.stdout.write('Generation: ' + this.generation + '\n');
 
   }
 
@@ -127,18 +132,29 @@ class Board {
    */
   /**
    * Our seed only contains the relevant cells,
-   * we need to pad the board to size by size
+   * we need to pad the board to size by size first
    *
+   * A visual improvement, we try to center the seed in the board
    */
-  static initBoard( seedCells, boardSize ){
+  static initBoard( seedCells, boardWidth, boardHeight, centerSeed = 1 ){
 
     // create a blank board first
-    let board = Board.createBlankBoard(boardSize);
+    let board = Board.createBlankBoard(boardWidth, boardHeight);
+
+    const seedWidth = seedCells.length;
+    const seedHeight = seedCells[0].length;
+
+    let leftOffset = 0;
+    let topOffset = 0;
+    if (centerSeed){
+      leftOffset = Math.floor((boardWidth - seedWidth) / 2);
+      topOffset = Math.floor((boardHeight - seedHeight) / 2);
+    }
 
     // populate with cells from seed
     for (let x = 0; x < seedCells.length; x++){
       for (let y = 0; y < seedCells[x].length; y++){
-        board[ x ][ y ] = seedCells[ x ][ y ];
+        board[ leftOffset + x ][ topOffset + y ] = seedCells[ x ][ y ];
       }
     }
 
@@ -146,12 +162,12 @@ class Board {
   }
 
 
-  static createBlankBoard( boardSize ){
+  static createBlankBoard( boardWidth, boardHeight ){
 
-    let blankBoard = new Array(boardSize).fill(0);
+    let blankBoard = new Array(boardWidth).fill(0);
 
     blankBoard = blankBoard.map(() =>{
-      return new Array(boardSize).fill(0);
+      return new Array(boardHeight).fill(0);
     });
 
     return blankBoard
