@@ -141,6 +141,7 @@ class Board {
     // create a blank board first
     let board = Board.createBlankBoard(boardWidth, boardHeight);
 
+    // assume the seed is orthogonal
     const seedWidth = seedCells.length;
     const seedHeight = seedCells[0].length;
 
