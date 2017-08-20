@@ -107,7 +107,6 @@ class Board {
   render(){
 
     // draw one horizontal line at a time
-    // our array is row major so we loop thru height first
     for (let y = 0; y < this.boardHeight; y++){
 
       let line = '';
